@@ -3,16 +3,14 @@ package com.example
 import akka.actor.{ActorRef, Actor, ActorSystem}
 import akka.cluster._
 import akka.cluster.ClusterEvent._
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import akka.persistence.PersistentActor
+import scala.concurrent.Await
 
 object ApplicationMain extends App {
   val system = ActorSystem("MyActorSystem")
-  val pingActor = system.actorOf(PingActor.props, "pingActor")
-  pingActor ! PingActor.Initialize
 
-  system.awaitTermination()
-}
+  Await.result(system.whenTerminated, Duration.Inf)
 
 case class ElapsedTime(duration:FiniteDuration)
 case object Act
