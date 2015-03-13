@@ -11,4 +11,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.4-SNAPSHOT",
   "com.typesafe.akka" %% "akka-testkit" % "2.4-SNAPSHOT" % "test",
    "com.typesafe.akka" %% "akka-cluster" % "2.4-SNAPSHOT",
+   "akka-raft" %% "akka-raft" % "0.1-SNAPSHOT",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test")
