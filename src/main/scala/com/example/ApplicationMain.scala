@@ -21,7 +21,7 @@ object ApplicationMain extends App {
   val system = ActorSystem("MyActorSystem", config)
 
   val setter = system.actorOf(Props[MapSetter], "map-setter")
-  val arbiter = system.actorOf(Props[MoverArbiter], "mover-arbiter")
+  val arbiter = system.actorOf(Props[MoverArbiter], "raft-member-mover-arbiter")
   system.actorOf(ClusterRaftActor.props(arbiter, 3))
 
 
@@ -91,6 +91,15 @@ class MapSetter extends Actor with ActorLogging {
         classOf[MemberEvent], classOf[UnreachableMember])
     }
   override def receive = {
+    case MemberUp(member) =>
+      log.info("Member is Up: {}", member.address)
+    case UnreachableMember(member) =>
+      log.info("Member detected as unreachable: {}", member)
+    case MemberRemoved(member, previousStatus) =>
+      log.info("Member is Removed: {} after {}",
+        member.address, previousStatus)
+    case a: MemberEvent =>
+      log.info("event: {}", a)
     case s:CurrentClusterState =>
       log.info("Received state: "+s)
       val map = s.members.map(m => m.address)
