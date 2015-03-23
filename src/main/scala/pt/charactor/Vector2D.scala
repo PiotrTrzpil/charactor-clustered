@@ -47,4 +47,10 @@ case class Vector2D(x: Double, y: Double)
 
       Math.sqrt(xDiff*xDiff + yDiff*yDiff)
    }
+
+  def rotateRadians(rad:Double) = {
+    val ca = math.cos(rad)
+    val sa = math.sin(rad)
+    Vector2D(ca*x - sa*y, sa*x + ca*y)
+  }
 }

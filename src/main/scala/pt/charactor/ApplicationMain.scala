@@ -30,8 +30,11 @@ import pl.project13.scala.akka.raft.protocol._
   */
 
 
-  //val setter3 = system.actorOf(Props[MapSetterLite], "map-setter3")
-   val arbiter = system.actorOf(Props[MoverArbiter], s"raft-member-mover-arbiter-$port")
+  val setter = system.actorOf(Props[MapSetter], "map-setter")
+  val arbiter = system.actorOf(Props[MoverArbiter], s"raft-member-mover-arbiter-$port")
+
+
+
 
  // client ! CurrentWorldMap(Map())
   //client ! CurrentWorldMap(Map())
@@ -41,13 +44,13 @@ import pl.project13.scala.akka.raft.protocol._
 
  // val setter2 = system.actorOf(Props[MapSetterLite], "map-setter2")
   //val setter = system.actorOf(Props[MapSetter], "map-setter")
-  system.actorOf(ClusterRaftActor.props(arbiter, 2), "clustered-raft")
+/*  system.actorOf(ClusterRaftActor.props(arbiter, 2), "clustered-raft")
 
   val addresses = List(2551, 2552).map(p =>
     RootActorPath(arbiter.path.address.copy(port=Some(p), protocol = "akka.tcp", host=Some("127.0.0.1"))) / "user" / ("raft-member-mover-arbiter-"+p)).toList
   val client = system.actorOf(RaftClientActor.props(addresses:_*))
   client ! CurrentWorldMap(Map())
-
+*/
   system.awaitTermination()
 
 
@@ -88,6 +91,8 @@ class MapSetter extends Actor with ActorLogging {
       cluster.subscribe(self, initialStateMode = InitialStateAsEvents,
         classOf[MemberEvent], classOf[UnreachableMember])
     }
+
+  def arbiterPath = (m:Member) => RootActorPath(m.address) / "user" / ("raft-member-mover-arbiter-"+m.address.port.get)
   override def receive = {
     case MemberUp(member) =>
       context.children.foreach(_ ! Kill)
@@ -97,9 +102,11 @@ class MapSetter extends Actor with ActorLogging {
         .zipWithIndex
         .map { case (address, index) => Square(index, 0) -> address }
         .toMap
-      val addresses = members.map(m => RootActorPath(m.address) / "user" / ("raft-member-mover-arbiter-"+m.address.port.get)).toList
-      val client = context.actorOf(RaftClientActor.props(addresses:_*))
-      client ! CurrentWorldMap(map)
+
+      context.actorSelection(arbiterPath(member)) ! CurrentWorldMap(map)
+     // val addresses = members.map()).toList
+      //val client = context.actorOf(RaftClientActor.props(addresses:_*))
+      //client ! CurrentWorldMap(map)
     case UnreachableMember(member) =>
       log.info("Member detected as unreachable: {}", member)
     case MemberRemoved(member, previousStatus) =>
