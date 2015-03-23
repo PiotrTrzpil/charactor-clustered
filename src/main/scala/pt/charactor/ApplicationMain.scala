@@ -9,7 +9,8 @@ import pl.project13.scala.akka.raft.{ClusterConfiguration, RaftClientActor, Raft
 import com.typesafe.config.ConfigFactory
 import pt.charactor.MoverArbiter._
 import pl.project13.scala.akka.raft.cluster.ClusterRaftActor
-
+import com.example.pt.charactor.Mover
+import scala.concurrent.duration._
 object ApplicationMain extends App {
 
   val port = if (args.isEmpty) "0" else args(0)
@@ -29,9 +30,12 @@ import pl.project13.scala.akka.raft.protocol._
   client ! CurrentWorldMap(Map())
   */
 
-
+  import system.dispatcher
   val setter = system.actorOf(Props[MapSetter], "map-setter")
   val arbiter = system.actorOf(Props[MoverArbiter], s"raft-member-mover-arbiter-$port")
+
+  val mover = system.actorOf(Props[Mover], s"mover")
+  system.scheduler.schedule(500.millis, 40.milli, mover, ElapsedTime(40.milli))
 
 
 

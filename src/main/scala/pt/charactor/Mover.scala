@@ -17,6 +17,8 @@ class Mover extends PersistentActor {
   val dirChange = 2
   val distancePerSec = 2
 
+  import context.dispatcher
+
   context.system.scheduler.schedule(1.minute, 1.minute, self, TakeSnapshot)
   def receiveRecover = {
     case SnapshotOffer(meta, (pos:Vector2D, dir:Vector2D)) =>
@@ -27,10 +29,13 @@ class Mover extends PersistentActor {
   def receiveCommand = {
     case ElapsedTime(duration) =>
 
-      position = position + direction * distancePerSec * duration.toSeconds
-      direction = direction.rotateRadians(dirChange)
-      persist((position, direction))
-      context.system.eventStream.publish(PositionChanged(self, position))
+      val newposition = position + direction * distancePerSec * duration.toSeconds
+      val newdirection = direction.rotateRadians(dirChange)
+      persist((newposition, newdirection)) { id =>
+        position = newposition
+        direction = newdirection
+        context.system.eventStream.publish(PositionChanged(self, position))
+      }
     case Act =>
     case TakeSnapshot =>
       saveSnapshot((position, direction))
