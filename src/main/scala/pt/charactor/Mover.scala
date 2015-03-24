@@ -14,8 +14,8 @@ class Mover extends PersistentActor {
 
   var position = Vector2D(1,1)
   var direction = Vector2D(1,1)
-  val dirChange = 2
-  val distancePerSec = 2
+  val dirChange = 2d
+  val distancePerSec = 2d
 
   import context.dispatcher
 
@@ -29,7 +29,7 @@ class Mover extends PersistentActor {
   def receiveCommand = {
     case ElapsedTime(duration) =>
 
-      val newposition = position + direction * distancePerSec * duration.toSeconds
+      val newposition = position + direction * distancePerSec * duration.toMillis / 1000d
       val newdirection = direction.rotateRadians(dirChange)
       persist((newposition, newdirection)) { id =>
         position = newposition
