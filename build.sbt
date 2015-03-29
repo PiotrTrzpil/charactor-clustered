@@ -15,3 +15,9 @@ libraryDependencies ++= Seq(
    "com.typesafe.akka" %% "akka-cluster" % akkaVer,
    "akka-raft" %% "akka-raft" % "0.1-SNAPSHOT",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test")
+
+scalacOptions ++= Seq(
+  "-Xlint" ,
+  "-deprecation" ,
+  "-Xfatal-warnings"
+  )

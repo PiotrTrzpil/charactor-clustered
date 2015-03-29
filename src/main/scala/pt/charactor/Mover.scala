@@ -1,13 +1,15 @@
-package com.example.pt.charactor
+package pt.charactor
 
 import akka.persistence.{SnapshotOffer, PersistentActor}
-import pt.charactor.{Act, ElapsedTime}
 import akka.actor.ActorRef
-import com.example.pt.charactor.Mover.{TakeSnapshot, PositionChanged}
+import pt.charactor.Mover.{Act, ElapsedTime, TakeSnapshot, PositionChanged}
+import scala.concurrent.duration.FiniteDuration
 
 object Mover {
   case class PositionChanged(actor:ActorRef, position:Vector2D)
   case object TakeSnapshot
+  case class ElapsedTime(duration:FiniteDuration)
+  case object Act
 }
 import scala.concurrent.duration._
 class Mover extends PersistentActor {
@@ -20,6 +22,7 @@ class Mover extends PersistentActor {
   import context.dispatcher
 
   context.system.scheduler.schedule(1.minute, 1.minute, self, TakeSnapshot)
+
   def receiveRecover = {
     case SnapshotOffer(meta, (pos:Vector2D, dir:Vector2D)) =>
       position = pos

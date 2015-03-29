@@ -1,4 +1,4 @@
-package com.example.pt.charactor
+package pt.charactor
 
 case class Vector2D(x: Double, y: Double)
 {
