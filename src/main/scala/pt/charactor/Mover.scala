@@ -12,10 +12,10 @@ object Mover {
   case object Act
 }
 import scala.concurrent.duration._
-class Mover extends PersistentActor {
+class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentActor {
 
-  var position = Vector2D(1,1)
-  var direction = Vector2D(1,1)
+  var position = initPosition
+  var direction = initDirection
   val dirChange = 2d
   val distancePerSec = 2d
 
