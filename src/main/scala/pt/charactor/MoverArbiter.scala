@@ -10,16 +10,22 @@ object MoverArbiter {
   case class CurrentWorldMap(map:Map[Square, Any])
 }
 
-class MoverArbiter extends Actor with ActorLogging {
+class MoverArbiter(id:Int) extends Actor with ActorLogging {
   type Command = Cmnd
 
-  var worldMap: Map[Square, Any] = Map()
 
+  var worldMap: Map[Square, Any] = Map()
+  val mapDimensions = Vector2D(100,100)
   context.system.eventStream.subscribe(self, classOf[PositionChanged])
+
+  def chooseMapFragment(position:Vector2D) = {
+
+  }
 
   def receive = {
     case PositionChanged(actor, position) =>
       log.info("position of actor: "+actor.path.name+ " changed to "+position)
+
      case CurrentWorldMap(map) =>
       log.info("Received world map: "+map)
       worldMap = map

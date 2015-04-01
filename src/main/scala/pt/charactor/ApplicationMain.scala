@@ -17,7 +17,7 @@ object ApplicationMain extends App {
 
   import system.dispatcher
   val setter = system.actorOf(Props[MapSetter], "map-setter")
-  val arbiter = system.actorOf(Props[MoverArbiter], s"raft-member-mover-arbiter-$port")
+  val arbiter = system.actorOf(Props(classOf[MoverArbiter], port), s"raft-member-mover-arbiter-$port")
 
   val mover = system.actorOf(Props(classOf[Mover], Vector2D(1,1), Vector2D(1,1)), s"mover")
   system.scheduler.schedule(500.millis, 40.milli, mover, ElapsedTime(40.milli))

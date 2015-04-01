@@ -14,6 +14,7 @@ object Mover {
 import scala.concurrent.duration._
 class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentActor {
 
+  val mapDimensions = Vector2D(100,100)
   var position = initPosition
   var direction = initDirection
   val dirChange = 2d
@@ -32,10 +33,11 @@ class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentAct
   def receiveCommand = {
     case ElapsedTime(duration) =>
 
-      val newposition = position + direction * distancePerSec * duration.toMillis / 1000d
+      val newpos = position + direction * distancePerSec * duration.toMillis / 1000d
+      val newPosition = newpos % mapDimensions
       val newdirection = direction.rotateRadians(dirChange)
-      persist((newposition, newdirection)) { id =>
-        position = newposition
+      persist((newPosition, newdirection)) { id =>
+        position = newPosition
         direction = newdirection
         context.system.eventStream.publish(PositionChanged(self, position))
       }
