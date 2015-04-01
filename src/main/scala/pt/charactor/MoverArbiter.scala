@@ -19,7 +19,17 @@ class MoverArbiter(id:Int) extends Actor with ActorLogging {
   context.system.eventStream.subscribe(self, classOf[PositionChanged])
 
   def chooseMapFragment(position:Vector2D) = {
+    val thisPortion = id % worldMap.size
+    val step = mapDimensions.x / worldMap.size
+    val margin = step/3
+    val min = thisPortion * step - margin
+    val max = min + step + margin
 
+    if(position.x >= min && position.x <= max) {
+      thisPortion
+    } else {
+      (position.x / step).toInt
+    }
   }
 
   def receive = {
