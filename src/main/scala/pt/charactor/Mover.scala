@@ -1,11 +1,13 @@
 package pt.charactor
 
 import akka.persistence.{SnapshotOffer, PersistentActor}
-import akka.actor.ActorRef
+import akka.actor.{ActorIdentity, Identify, ActorRef}
 import pt.charactor.Mover.{Act, ElapsedTime, TakeSnapshot, PositionChanged}
 import scala.concurrent.duration.FiniteDuration
+import akka.persistence.journal.leveldb.SharedLeveldbJournal
 
 object Mover {
+  case class MoverTransfer(name:String)
   case class PositionChanged(actor:ActorRef, position:Vector2D)
   case object TakeSnapshot
   case class ElapsedTime(duration:FiniteDuration)
@@ -14,6 +16,9 @@ object Mover {
 import scala.concurrent.duration._
 class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentActor {
 
+  override def preStart(): Unit = {
+    context.actorSelection("akka.tcp://example@127.0.0.1:2550/user/store") ! Identify(1)
+  }
   val mapDimensions = Vector2D(100,100)
   var position = initPosition
   var direction = initDirection
@@ -31,6 +36,9 @@ class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentAct
   }
 
   def receiveCommand = {
+    case ActorIdentity(1, Some(store)) =>
+      SharedLeveldbJournal.setStore(store, context.system)
+
     case ElapsedTime(duration) =>
 
       val newpos = position + direction * distancePerSec * duration.toMillis / 1000d
