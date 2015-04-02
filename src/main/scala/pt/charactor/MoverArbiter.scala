@@ -7,25 +7,24 @@ import pt.charactor.Mover.PositionChanged
 object MoverArbiter {
   trait Cmnd
   case class Square(x:Int, y:Int)
-  case class CurrentWorldMap(map:Map[Square, Any])
+  case class CurrentWorldMap(map:List[String])
 }
 
-class MoverArbiter(id:Int) extends Actor with ActorLogging {
+class MoverArbiter(id:Int, mapDimensions :Vector2D) extends Actor with ActorLogging {
   type Command = Cmnd
 
 
-  var worldMap: Map[Square, Any] = Map()
-  val mapDimensions = Vector2D(100,100)
+  var worldMap = List[String]()
   context.system.eventStream.subscribe(self, classOf[PositionChanged])
 
   def chooseMapFragment(position:Vector2D) = {
     val thisPortion = id % worldMap.size
     val step = mapDimensions.x / worldMap.size
     val margin = step/3
-    val min = thisPortion * step - margin
-    val max = min + step + margin
+    val min = thisPortion * step
+    val max = min + step
 
-    if(position.x >= min && position.x <= max) {
+    if(position.x >= min - margin && position.x <= max + margin) {
       thisPortion
     } else {
       (position.x / step).toInt

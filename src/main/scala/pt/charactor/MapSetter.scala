@@ -34,7 +34,7 @@ class MapSetter extends Actor with ActorLogging {
         .map { case (address, index) => Square(index, 0) -> address}
         .toMap
 
-      context.actorSelection(arbiterPath(member)) ! CurrentWorldMap(map)
+      context.actorSelection(arbiterPath(member)) ! CurrentWorldMap(map.values.map(_.toString).toList)
     case UnreachableMember(member) =>
       log.info("Member detected as unreachable: {}", member)
     case MemberRemoved(member, previousStatus) =>
