@@ -22,8 +22,8 @@ class MapSetter extends Actor with ActorLogging {
       classOf[MemberEvent], classOf[UnreachableMember])
   }
 
-  def arbiterPath = (m: Member) => RootActorPath(m.address) / "user" / ("raft-member-mover-arbiter")
-
+  def arbiterPath = context.system / ("raft-member-mover-arbiter")
+//RootActorPath(m.address)
   override def receive = {
     case MemberUp(member) =>
       context.children.foreach(_ ! Kill)
@@ -34,7 +34,7 @@ class MapSetter extends Actor with ActorLogging {
         .map { case (address, index) => Square(index, 0) -> address}
         .toMap
       if(members.size == 3)
-        context.actorSelection(arbiterPath(member)) ! CurrentWorldMap(map.values.toList)
+        context.actorSelection(arbiterPath) ! CurrentWorldMap(map.values.toList)
     case UnreachableMember(member) =>
       log.info("Member detected as unreachable: {}", member)
     case MemberRemoved(member, previousStatus) =>

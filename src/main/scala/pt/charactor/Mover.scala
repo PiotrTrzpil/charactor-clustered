@@ -5,6 +5,7 @@ import akka.actor.{ActorLogging, ActorIdentity, Identify, ActorRef}
 import pt.charactor.Mover.{Act, ElapsedTime, TakeSnapshot, PositionChanged}
 import scala.concurrent.duration.FiniteDuration
 import akka.persistence.journal.leveldb.SharedLeveldbJournal
+import scala.util.Random
 
 object Mover {
   case class MoverTransfer(name:String)
@@ -23,8 +24,7 @@ class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentAct
   var position = initPosition
   var direction = initDirection
   val dirChange = 2d
-  val distancePerSec = 2d
-
+  val distancePerSec = 5d
   import context.dispatcher
 
   context.system.scheduler.schedule(1.minute, 1.minute, self, TakeSnapshot)
@@ -43,11 +43,12 @@ class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentAct
    //   log.info("Received: "+duration)
       val newpos = position + direction * distancePerSec * duration.toMillis / 1000d
       val newPosition = newpos % mapDimensions
-      val newdirection = direction.rotateRadians(dirChange)
+      val newdirection = direction.rotateRadians(dirChange*Random.nextInt(100).toDouble/100d)
       persist((newPosition, newdirection)) { id =>
       //  log.info("Persisted: "+newPosition+", "+ newdirection)
         position = newPosition
         direction = newdirection
+    //    log.info("Persisted: "+newPosition+", "+ newdirection)
         context.system.eventStream.publish(PositionChanged(self, position))
       }
     case Act =>

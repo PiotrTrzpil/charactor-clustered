@@ -22,7 +22,7 @@ class MoverArbiter(id:Int, mapDimensions :Vector2D) extends Actor with ActorLogg
 
   def chooseMapFragment(position:Vector2D) = {
     val step = mapDimensions.x / worldMap.size
-    val margin = step/3
+    val margin = step/5
     val min = thisFragment * step
     val max = min + step
 
@@ -48,7 +48,7 @@ class MoverArbiter(id:Int, mapDimensions :Vector2D) extends Actor with ActorLogg
 
   def active:Receive = {
     case MoverTransfer(name) =>
-      context.system.actorOf(Props(classOf[Mover]), name)
+      context.system.actorOf(Props(classOf[Mover], Vector2D(50,50), Vector2D(1,1)), name)
       log.info(s"Transfered actor $name to arbiter: $id")
     case PositionChanged(actor, position) =>
       log.info("position of actor: "+actor.path.name+ " changed to "+position)
