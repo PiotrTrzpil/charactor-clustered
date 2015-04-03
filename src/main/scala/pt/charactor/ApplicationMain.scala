@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigFactory
 import scala.concurrent.duration._
 import pt.charactor.Mover.ElapsedTime
 import akka.persistence.journal.leveldb.SharedLeveldbStore
+import akka.persistence.inmem.journal.{SharedInMemoryMessageStore, SharedInMemoryJournal}
 
 object ApplicationMain extends App {
 
@@ -15,7 +16,19 @@ object ApplicationMain extends App {
     withFallback(ConfigFactory.load())
 
   val system = ActorSystem("MyActorSystem", config)
-  //if (port.toInt == 2550)
+  if (port.toInt == 2550) {
+    val store = system.actorOf(
+      Props[SharedInMemoryMessageStore], "store")
+   // SharedInMemoryJournal.setStore(, system)
+  }
+  system.actorOf(Props[SharedStoreUsage])
+
+  //else if (port.toInt == 2551 {
+  //  SharedInMemoryJournal.setStore
+
+//    (getActorRef(
+//      node(node1) / "user" / "journalStore").get, system)
+//  }
   //  system.actorOf(Props(classOf[SharedLeveldbStore]), "store")
 
   import system.dispatcher
@@ -25,7 +38,7 @@ object ApplicationMain extends App {
 
   val xPos = 11+(port.toInt % 3)*33
   val mover = system.actorOf(Props(classOf[Mover], Vector2D(xPos,50), Vector2D(1,1)), s"mover"+(port.toInt % 3))
-  system.scheduler.schedule(500.millis, 500.milli, mover, ElapsedTime(500.milli))
+  system.scheduler.schedule(500.millis, 1500.milli, mover, ElapsedTime(1500.milli))
 
   system.awaitTermination()
 }

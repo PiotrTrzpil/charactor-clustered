@@ -1,7 +1,7 @@
 package pt.charactor
 
 import akka.persistence.{SnapshotOffer, PersistentActor}
-import akka.actor.{ActorIdentity, Identify, ActorRef}
+import akka.actor.{ActorLogging, ActorIdentity, Identify, ActorRef}
 import pt.charactor.Mover.{Act, ElapsedTime, TakeSnapshot, PositionChanged}
 import scala.concurrent.duration.FiniteDuration
 import akka.persistence.journal.leveldb.SharedLeveldbJournal
@@ -14,11 +14,11 @@ object Mover {
   case object Act
 }
 import scala.concurrent.duration._
-class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentActor {
+class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentActor with ActorLogging{
 
-  override def preStart(): Unit = {
-    context.actorSelection("akka.tcp://example@127.0.0.1:2550/user/store") ! Identify(1)
-  }
+//  override def preStart(): Unit = {
+//    context.actorSelection("akka.tcp://example@127.0.0.1:2550/user/store") ! Identify(1)
+//  }
   val mapDimensions = Vector2D(100,100)
   var position = initPosition
   var direction = initDirection
@@ -36,15 +36,16 @@ class Mover(initPosition:Vector2D, initDirection:Vector2D) extends PersistentAct
   }
 
   def receiveCommand = {
-    case ActorIdentity(1, Some(store)) =>
-      SharedLeveldbJournal.setStore(store, context.system)
+//    case ActorIdentity(1, Some(store)) =>
+//      SharedLeveldbJournal.setStore(store, context.system)
 
     case ElapsedTime(duration) =>
-
+   //   log.info("Received: "+duration)
       val newpos = position + direction * distancePerSec * duration.toMillis / 1000d
       val newPosition = newpos % mapDimensions
       val newdirection = direction.rotateRadians(dirChange)
       persist((newPosition, newdirection)) { id =>
+      //  log.info("Persisted: "+newPosition+", "+ newdirection)
         position = newPosition
         direction = newdirection
         context.system.eventStream.publish(PositionChanged(self, position))
