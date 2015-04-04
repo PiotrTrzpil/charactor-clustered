@@ -33,8 +33,13 @@ case class Vector2D(x: Double, y: Double)
    }
 
    def bounded(other: Vector2D) = {
-     val v = this % other
-     Vector2D(if(v.x > 0) v.x else other.x - v.x, if(v.y > 0) v.y else other.y - v.y)
+     Vector2D(bound(x, other.x), bound(y, other.y))
+   }
+
+   private def bound(n:Double, bound:Double) = {
+     val v = n % bound
+     if (v * bound < 0) v + bound
+     else v
    }
 
    def max(limit: Vector2D): Vector2D = new Vector2D(Math.max(x, limit.x), Math.max(y, limit.y))

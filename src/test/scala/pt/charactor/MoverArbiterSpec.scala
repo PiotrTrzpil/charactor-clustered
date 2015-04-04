@@ -6,7 +6,6 @@ import akka.testkit.{TestActorRef, TestActors, TestKit, ImplicitSender}
 import org.scalatest.WordSpecLike
 import org.scalatest.Matchers
 import org.scalatest.BeforeAndAfterAll
-import pt.charactor.Vector2D
 import pt.charactor.MoverArbiter.CurrentWorldMap
 
 class MoverArbiterSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
@@ -21,7 +20,7 @@ class MoverArbiterSpec(_system: ActorSystem) extends TestKit(_system) with Impli
   "A Ping actor" must {
     "choose target while being in the first fragment" in {
       val pingActor = TestActorRef[MoverArbiter](Props(classOf[MoverArbiter], 0, Vector2D(100, 100) ))
-      pingActor ! CurrentWorldMap(List("", "", ""))
+      pingActor ! CurrentWorldMap(List())
       pingActor.underlyingActor.chooseMapFragment(Vector2D(0, 0)) shouldEqual 0
       pingActor.underlyingActor.chooseMapFragment(Vector2D(33, 0)) shouldEqual 0
       pingActor.underlyingActor.chooseMapFragment(Vector2D(44, 0)) shouldEqual 0
@@ -31,7 +30,7 @@ class MoverArbiterSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     }
     "choose target while being in the second fragment" in {
       val pingActor = TestActorRef[MoverArbiter](Props(classOf[MoverArbiter], 1, Vector2D(100, 100) ))
-      pingActor ! CurrentWorldMap(List("", "", ""))
+      pingActor ! CurrentWorldMap(List())
       pingActor.underlyingActor.chooseMapFragment(Vector2D(0, 0)) shouldEqual 0
       pingActor.underlyingActor.chooseMapFragment(Vector2D(22, 0)) shouldEqual 0
       pingActor.underlyingActor.chooseMapFragment(Vector2D(23, 0)) shouldEqual 1

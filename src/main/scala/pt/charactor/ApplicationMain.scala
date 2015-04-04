@@ -7,6 +7,7 @@ import scala.concurrent.duration._
 import pt.charactor.Mover.ElapsedTime
 import akka.persistence.journal.leveldb.SharedLeveldbStore
 import akka.persistence.inmem.journal.{SharedInMemoryMessageStore, SharedInMemoryJournal}
+import pt.charactor.MoverArbiter.SpawnMover
 
 object ApplicationMain extends App {
 
@@ -37,8 +38,7 @@ object ApplicationMain extends App {
     s"raft-member-mover-arbiter")
 
   val xPos = 11+(port.toInt % 3)*33
-  val mover = system.actorOf(Props(classOf[Mover], Vector2D(xPos,50), Vector2D(1,1)), s"mover"+(port.toInt % 3))
-  system.scheduler.schedule(500.millis, 1500.milli, mover, ElapsedTime(1500.milli))
+  arbiter ! SpawnMover(Vector2D(xPos,50), s"mover"+(port.toInt % 3))
 
   system.awaitTermination()
 }
