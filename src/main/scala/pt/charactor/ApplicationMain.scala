@@ -1,7 +1,6 @@
 package pt.charactor
 
 import akka.actor._
-import pl.project13.scala.akka.raft.ClusterConfiguration
 import com.typesafe.config.ConfigFactory
 import scala.concurrent.duration._
 import pt.charactor.Mover.ElapsedTime
